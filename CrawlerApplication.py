@@ -8,8 +8,8 @@ import csv
 
 ITEMS_PAGE = 30
 API = "a3cde9e1462bb4d112bae6620ea9ac92"
-CITY = "jinan"
-
+CITY = "fangchenggang"
+CITY_NAME = ['','','','','','','','']
 class Spider:
     def getContent(self, url):
         conn = urllib.request.urlopen(url)
@@ -131,7 +131,7 @@ def getCommunityLink(html):
 def getCommunityAmount(html, className, destStr):
     soup = BeautifulSoup(html, "lxml")
     stringFind = str( soup.find_all(class_ = className) )
-    print(stringFind)
+    #print(stringFind)
 
     posBegin = 0
     posEnd = 0
@@ -164,10 +164,10 @@ timeBegin = datetime.datetime.now()
 #Find total pages
 #print("test")
 totalNumHTML = urllib.request.urlopen("http://" + CITY + ".anjuke.com/community/view").read()
-totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) - 1
+totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) + 1
 print("Total pages: " + str(totalPage))
 
-for pageNumber in range(1, totalPage):
+for pageNumber in range(1, totalPage + 1):
     currentURL = url + str(pageNumber)
     print("View page:", pageNumber, "   site:", currentURL)
     result = []
@@ -184,7 +184,7 @@ for pageNumber in range(1, totalPage):
         communityLink = urllib.request.urlopen(communityList[i]).read()
         soup = BeautifulSoup(communityLink, "lxml")
         data.append(getResultFromJS("comm_name"))
-        data.append(getAddress("comm-adres"))
+        data.append(CITY_NAME[0] + getAddress("comm-adres"))
         data.append(getResultFromJS("comm_lng"))
         data.append(getResultFromJS("comm_lat"))
         data.append(getPrice("comm-avg-price"))
@@ -206,7 +206,7 @@ for pageNumber in range(1, totalPage):
 print("Start to write")
 
 
-with open('./data/jinan.csv', 'w', encoding = 'utf-8-sig') as f:
+with open('./data/' + CITY + '.csv', 'w', encoding = 'utf-8-sig') as f:
     writer = csv.writer(f, delimiter = ',')
     writer.writerow(headName)
     length = len(dataOutput)
