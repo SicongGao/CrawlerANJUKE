@@ -5,10 +5,12 @@ import re
 import datetime
 import time
 import csv
+import os
 
 ITEMS_PAGE = 30
+TIME_SLEEP = 5
 API = "a3cde9e1462bb4d112bae6620ea9ac92"
-CITY = ['fangchenggang']
+CITY = ['jinan']
 CITY_NAME = ['防城港市']
 
 class Spider:
@@ -151,6 +153,13 @@ def getCommunityAmount(html, className, destStr):
     print(info)
     return int(info)
 
+def writeToFile(dataContent, method):
+    with open('./data/' + CITY[0] + '.csv', method, encoding = 'utf-8-sig') as f:
+        writer = csv.writer(f, delimiter = ',')
+        writer.writerow(dataContent)
+    f.close()
+
+
 url = "http://" + CITY[0] + ".anjuke.com/community/p"
 totalPage = 1
 ID = 1
@@ -164,6 +173,8 @@ timeBegin = datetime.datetime.now()
 
 #Find total pages
 #print("test")
+#os.remove("/data/" + CITY[0] + ".csv")
+writeToFile(headName,"w")
 totalNumHTML = urllib.request.urlopen("http://" + CITY[0] + ".anjuke.com/community/view").read()
 totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) + 1
 print("Total pages: " + str(totalPage))
@@ -197,24 +208,25 @@ for pageNumber in range(1, totalPage + 1):
 
         ID += 1
         dataOutput += data
+        writeToFile(data,"a")
         data.clear()
         data.append(ID)
 
-        time.sleep(10)
+        time.sleep(TIME_SLEEP)
         # if ID == 3:
         #     break
 
 print("Start to write")
 
 
-with open('./data/' + CITY[0] + '.csv', 'w', encoding = 'utf-8-sig') as f:
-    writer = csv.writer(f, delimiter = ',')
-    writer.writerow(headName)
-    length = len(dataOutput)
-    for i in range(0, len(dataOutput),len(headName)):
-        writer.writerow(dataOutput[i : i + len(headName)])
-
-f.close()
+# with open('./data/' + CITY[0] + '.csv', 'w', encoding = 'utf-8-sig') as f:
+#     writer = csv.writer(f, delimiter = ',')
+#     writer.writerow(headName)
+#     length = len(dataOutput)
+#     for i in range(0, len(dataOutput),len(headName)):
+#         writer.writerow(dataOutput[i : i + len(headName)])
+#
+# f.close()
 
 timeEnd = datetime.datetime.now()
 
