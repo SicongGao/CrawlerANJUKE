@@ -1,7 +1,7 @@
 #Mine
 *.csv
 *.xlsx
-
+*.xml
 
 
 # Byte-compiled / optimized / DLL files
