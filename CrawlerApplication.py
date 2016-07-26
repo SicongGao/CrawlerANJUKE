@@ -8,8 +8,9 @@ import csv
 
 ITEMS_PAGE = 30
 API = "a3cde9e1462bb4d112bae6620ea9ac92"
-CITY = "fangchenggang"
-CITY_NAME = ['','','','','','','','']
+CITY = ['fangchenggang']
+CITY_NAME = ['防城港市']
+
 class Spider:
     def getContent(self, url):
         conn = urllib.request.urlopen(url)
@@ -123,7 +124,7 @@ def getCommunityLink(html):
     # print(numList)
 
     for i in range(0 , len(numList)):
-        numList[i] = "http://" + CITY + ".anjuke.com/community/view/" + numList[i]
+        numList[i] = "http://" + CITY[0] + ".anjuke.com/community/view/" + numList[i]
 
     print(numList)
     return numList
@@ -150,7 +151,7 @@ def getCommunityAmount(html, className, destStr):
     print(info)
     return int(info)
 
-url = "http://" + CITY + ".anjuke.com/community/p"
+url = "http://" + CITY[0] + ".anjuke.com/community/p"
 totalPage = 1
 ID = 1
 dataOutput = []
@@ -163,7 +164,7 @@ timeBegin = datetime.datetime.now()
 
 #Find total pages
 #print("test")
-totalNumHTML = urllib.request.urlopen("http://" + CITY + ".anjuke.com/community/view").read()
+totalNumHTML = urllib.request.urlopen("http://" + CITY[0] + ".anjuke.com/community/view").read()
 totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) + 1
 print("Total pages: " + str(totalPage))
 
@@ -206,7 +207,7 @@ for pageNumber in range(1, totalPage + 1):
 print("Start to write")
 
 
-with open('./data/' + CITY + '.csv', 'w', encoding = 'utf-8-sig') as f:
+with open('./data/' + CITY[0] + '.csv', 'w', encoding = 'utf-8-sig') as f:
     writer = csv.writer(f, delimiter = ',')
     writer.writerow(headName)
     length = len(dataOutput)
@@ -219,3 +220,7 @@ timeEnd = datetime.datetime.now()
 
 print("Time: " + str((timeEnd - timeBegin).seconds) + "s")
 print("Success!")
+
+
+#CITY = ["fangchenggang",'','','','','','','','','','','','']
+#CITY_NAME = ['防城港市','济南市','青岛市','德州市','淄博市','潍坊市','烟台市','日照市','德州市','','']
