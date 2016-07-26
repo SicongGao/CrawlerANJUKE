@@ -11,7 +11,7 @@ ITEMS_PAGE = 30
 TIME_SLEEP = 5
 API = "a3cde9e1462bb4d112bae6620ea9ac92"
 CITY = ['jinan']
-CITY_NAME = ['防城港市']
+CITY_NAME = ['济南市']
 
 class Spider:
     def getContent(self, url):
