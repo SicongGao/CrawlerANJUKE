@@ -10,8 +10,8 @@ import os
 ITEMS_PAGE = 30
 TIME_SLEEP = 5
 API = "a3cde9e1462bb4d112bae6620ea9ac92"
-CITY = ['jinan']
-CITY_NAME = ['济南市']
+CITY = ['binzhou','liaocheng']
+CITY_NAME = ['滨州','聊城']
 
 class Spider:
     def getContent(self, url):
@@ -57,7 +57,7 @@ def getResultFromJS(destStr):
     #print(posBegin)
     #print(posEnd)
     resultStr = stringFind[posBegin: posEnd]
-    print(resultStr)
+    #print(resultStr)
     return resultStr
 
 def getPrice(destStr):
@@ -84,7 +84,7 @@ def getAddress(destStr):
     posEnd = stringFind.find("</em>")
 
     address = stringFind[posBegin + 4 : posEnd]
-    print(address)
+    #print(address)
     return address
 
 def getBasicInformation(className, destStr):
@@ -97,7 +97,7 @@ def getBasicInformation(className, destStr):
 
 
     info = stringFind[posBegin + 4 : posEnd]
-    print(info)
+    #print(info)
     return info
 
 def getCommunityLink(html):
@@ -126,7 +126,7 @@ def getCommunityLink(html):
     # print(numList)
 
     for i in range(0 , len(numList)):
-        numList[i] = "http://" + CITY[0] + ".anjuke.com/community/view/" + numList[i]
+        numList[i] = "http://" + CITY[ITEM_CITY] + ".anjuke.com/community/view/" + numList[i]
 
     print(numList)
     return numList
@@ -154,13 +154,13 @@ def getCommunityAmount(html, className, destStr):
     return int(info)
 
 def writeToFile(dataContent, method):
-    with open('./data/' + CITY[0] + '.csv', method, encoding = 'utf-8-sig') as f:
+    with open('./data/' + CITY[ITEM_CITY] + '.csv', method, encoding = 'utf-8-sig',newline='') as f:
         writer = csv.writer(f, delimiter = ',')
         writer.writerow(dataContent)
     f.close()
 
 
-url = "http://" + CITY[0] + ".anjuke.com/community/p"
+
 totalPage = 1
 ID = 1
 dataOutput = []
@@ -174,63 +174,67 @@ timeBegin = datetime.datetime.now()
 #Find total pages
 #print("test")
 #os.remove("/data/" + CITY[0] + ".csv")
-writeToFile(headName,"w")
-totalNumHTML = urllib.request.urlopen("http://" + CITY[0] + ".anjuke.com/community/view").read()
-totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) + 1
-print("Total pages: " + str(totalPage))
+ITEM_CITY = 0
+for ITEM_CITY in range(0,len(CITY)):
+    ID = 1
+    url = "http://" + CITY[ITEM_CITY] + ".anjuke.com/community/p"
+    writeToFile(headName,"w")
+    totalNumHTML = urllib.request.urlopen("http://" + CITY[ITEM_CITY] + ".anjuke.com/community/view").read()
+    totalPage = int(getCommunityAmount(totalNumHTML, "tit", "") / ITEMS_PAGE) + 1
+    print("Total pages: " + str(totalPage))
 
-for pageNumber in range(1, totalPage + 1):
-    currentURL = url + str(pageNumber)
-    print("View page:", pageNumber, "   site:", currentURL)
-    result = []
+    for pageNumber in range(1, totalPage + 1):
+        currentURL = url + str(pageNumber)
+        print("View page:", pageNumber, "   site:", currentURL)
+        result = []
 
-    communityList = getCommunityLink(urllib.request.urlopen(currentURL).read())
+        communityList = getCommunityLink(urllib.request.urlopen(currentURL).read())
 
-    data = [0]
-    data[0] = ID
+        data = [0]
+        data[0] = ID
 
-    for i in range(0, len(communityList)):
-        print("#########################################################################")
-        print("No.", ID)
+        for i in range(0, len(communityList)):
+            print("#########################################################################")
+            print("No.", ID)
 
-        communityLink = urllib.request.urlopen(communityList[i]).read()
-        soup = BeautifulSoup(communityLink, "lxml")
-        data.append(getResultFromJS("comm_name"))
-        data.append(CITY_NAME[0] + getAddress("comm-adres"))
-        data.append(getResultFromJS("comm_lng"))
-        data.append(getResultFromJS("comm_lat"))
-        data.append(getPrice("comm-avg-price"))
-        data.append(getBasicInformation("comm-r-detail float-r", "总户数"))
-        data.append(getBasicInformation("comm-r-detail float-r", "总建面"))
-        data.append(getBasicInformation("comm-r-detail float-r", "绿化率"))
-        data.append(getBasicInformation("comm-r-detail float-r", "建造年代"))
-        data.append(communityList[i])
+            communityLink = urllib.request.urlopen(communityList[i]).read()
+            soup = BeautifulSoup(communityLink, "lxml")
+            data.append(getResultFromJS("comm_name"))
+            data.append(CITY_NAME[ITEM_CITY] + getAddress("comm-adres"))
+            data.append(getResultFromJS("comm_lng"))
+            data.append(getResultFromJS("comm_lat"))
+            data.append(getPrice("comm-avg-price"))
+            data.append(getBasicInformation("comm-r-detail float-r", "总户数"))
+            data.append(getBasicInformation("comm-r-detail float-r", "总建面"))
+            data.append(getBasicInformation("comm-r-detail float-r", "绿化率"))
+            data.append(getBasicInformation("comm-r-detail float-r", "建造年代"))
+            data.append(communityList[i])
 
-        ID += 1
-        dataOutput += data
-        writeToFile(data,"a")
-        data.clear()
-        data.append(ID)
+            ID += 1
+            #dataOutput += data
+            writeToFile(data,"a")
+            data.clear()
+            data.append(ID)
 
-        time.sleep(TIME_SLEEP)
-        # if ID == 3:
-        #     break
+            time.sleep(TIME_SLEEP)
+            # if ID == 3:
+            #     break
 
-print("Start to write")
+    print("Start to write")
 
 
-# with open('./data/' + CITY[0] + '.csv', 'w', encoding = 'utf-8-sig') as f:
-#     writer = csv.writer(f, delimiter = ',')
-#     writer.writerow(headName)
-#     length = len(dataOutput)
-#     for i in range(0, len(dataOutput),len(headName)):
-#         writer.writerow(dataOutput[i : i + len(headName)])
-#
-# f.close()
+    # with open('./data/' + CITY[0] + '.csv', 'w', encoding = 'utf-8-sig') as f:
+    #     writer = csv.writer(f, delimiter = ',')
+    #     writer.writerow(headName)
+    #     length = len(dataOutput)
+    #     for i in range(0, len(dataOutput),len(headName)):
+    #         writer.writerow(dataOutput[i : i + len(headName)])
+    #
+    # f.close()
 
-timeEnd = datetime.datetime.now()
+    timeEnd = datetime.datetime.now()
 
-print("Time: " + str((timeEnd - timeBegin).seconds) + "s")
+    print("Time: " + str((timeEnd - timeBegin).seconds) + "s")
 print("Success!")
 
 
